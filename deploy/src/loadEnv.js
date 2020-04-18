@@ -1,6 +1,6 @@
 const path = require('path')
 require('dotenv').config({
-  path: path.join(__dirname, '..', '.env')
+  path: path.join(__dirname, '..', '.env.test')
 })
 const { isAddress, toBN } = require('web3').utils
 const envalid = require('envalid')
@@ -11,7 +11,7 @@ const foreignPrefix = 'FOREIGN'
 
 // Validations and constants
 const evmVersions = [EVM_TYPES.BYZANTIUM, EVM_TYPES.SPURIOUSDRAGON]
-const validBridgeModes = ['NATIVE_TO_ERC', 'ERC_TO_ERC', 'ERC_TO_NATIVE', 'ARBITRARY_MESSAGE', 'AMB_ERC_TO_ERC']
+const validBridgeModes = ['NATIVE_TO_ERC', 'ERC_TO_ERC', 'ERC_TO_NATIVE', 'ARBITRARY_MESSAGE', 'AMB_ERC_TO_ERC', 'AMB_YALLAND']
 const validRewardModes = ['false', 'ONE_DIRECTION', 'BOTH_DIRECTIONS']
 const validFeeManagerTypes = ['BRIDGE_VALIDATORS_REWARD', 'POSDAO_REWARD']
 const bigNumValidator = envalid.makeValidator(x => toBN(x))
@@ -137,6 +137,19 @@ if (BRIDGE_MODE === 'AMB_ERC_TO_ERC') {
       BLOCK_REWARD_ADDRESS: addressValidator()
     }
   }
+} else if (BRIDGE_MODE === 'AMB_YALLAND') {
+    validations = {
+      ...validations,
+      HOME_AMB_BRIDGE: addressValidator(),
+      FOREIGN_AMB_BRIDGE: addressValidator(),
+      HOME_MEDIATOR_REQUEST_GAS_LIMIT: bigNumValidator(),
+      FOREIGN_MEDIATOR_REQUEST_GAS_LIMIT: bigNumValidator(),
+      HOME_ERC20_TOKEN_ADDRESS: addressValidator(),
+      FOREIGN_ERC20_TOKEN_ADDRESS: addressValidator(),
+      FOREIGN_MIN_AMOUNT_PER_TX: bigNumValidator(),
+      FOREIGN_DAILY_LIMIT: bigNumValidator(),
+      DEPLOY_REWARDABLE_TOKEN: envalid.bool({default: false})
+    }
 } else {
   validations = {
     ...validations,
@@ -159,7 +172,7 @@ if (BRIDGE_MODE !== 'ARBITRARY_MESSAGE') {
     FOREIGN_DAILY_LIMIT: bigNumValidator()
   }
 
-  if (BRIDGE_MODE !== 'AMB_ERC_TO_ERC') {
+  if (BRIDGE_MODE !== 'AMB_ERC_TO_ERC' && BRIDGE_MODE !== 'AMB_YALLAND') {
     if (!validRewardModes.includes(HOME_REWARDABLE)) {
       throw new Error(`Invalid HOME_REWARDABLE: ${HOME_REWARDABLE}. Supported values are ${validRewardModes}`)
     }

@@ -4,6 +4,8 @@ import "./BasicAMBErc677ToErc677.sol";
 import "../../interfaces/IBurnableMintableERC677Token.sol";
 
 contract ForeignAMBErc677ToErc677 is BasicAMBErc677ToErc677 {
+    string public constant MEDIATOR_CHAIN = "foreign";
+
     function executeActionOnBridgedTokens(address _recipient, uint256 _value) internal {
         uint256 value = _value.mul(10**decimalShift());
         IBurnableMintableERC677Token(erc677token()).mint(_recipient, value);

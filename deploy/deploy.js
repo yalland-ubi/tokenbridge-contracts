@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const env = require('./src/loadEnv')
 
-const { BRIDGE_MODE, ERC20_TOKEN_ADDRESS } = env
+const { BRIDGE_MODE, HOME_ERC20_TOKEN_ADDRESS, FOREIGN_ERC20_TOKEN_ADDRESS } = env
 
 const deployResultsPath = path.join(__dirname, './bridgeDeploymentResults.json')
 
@@ -155,9 +155,43 @@ async function deployAMBErcToErc() {
   console.log('Contracts Deployment have been saved to `bridgeDeploymentResults.json`')
 }
 
+// AMB ERC20 <-> ERC20
+async function deployYalland() {
+  const preDeploy = require('./src/yalland_erc20_to_erc20/preDeploy')
+  const deployHome = require('./src/yalland_erc20_to_erc20/home')
+  const deployForeign = require('./src/yalland_erc20_to_erc20/foreign')
+  const initialize = require('./src/yalland_erc20_to_erc20/initialize')
+  await preDeploy()
+  const { homeBridgeMediator } = await deployHome()
+  const { foreignBridgeMediator } = await deployForeign()
+  await initialize({ homeBridge: homeBridgeMediator.address, foreignBridge: foreignBridgeMediator.address, homeErc677: HOME_ERC20_TOKEN_ADDRESS })
+  console.log('\nDeployment has been completed.\n\n')
+  console.log(`[   Home  ] Bridge Mediator: ${homeBridgeMediator.address}`)
+  console.log(`[   Home  ] ERC20 Token: ${HOME_ERC20_TOKEN_ADDRESS}`)
+  console.log(`[ Foreign ] Bridge Mediator: ${foreignBridgeMediator.address}`)
+  console.log(`[ Foreign ] ERC20 Token: ${FOREIGN_ERC20_TOKEN_ADDRESS}`)
+  fs.writeFileSync(
+    deployResultsPath,
+    JSON.stringify(
+      {
+        homeBridgeMediatorAddress: homeBridgeMediator.address,
+        homeBridgeMediatorAbi: homeBridgeMediator.abi,
+        foreignBridgeMediatorAddress: foreignBridgeMediator.address,
+        foreignBridgeMediatorAbi: foreignBridgeMediator.abi
+      },
+      null,
+      4
+    )
+  )
+  console.log(`Contracts Deployment have been saved to '${deployResultsPath}'`);
+}
+
 async function main() {
   console.log(`Bridge mode: ${BRIDGE_MODE}`)
   switch (BRIDGE_MODE) {
+    case 'AMB_YALLAND':
+      await deployYalland()
+      break
     case 'NATIVE_TO_ERC':
       await deployNativeToErc()
       break
