@@ -8,6 +8,21 @@ These contracts provide the core functionality for the POA bridge. They implemen
 The POA bridge smart contracts are intended to work with [the bridge process implemented on NodeJS](https://github.com/poanetwork/token-bridge).
 Please refer to the bridge process documentation to configure and deploy the bridge.
 
+## Yalland YALLToken Bridges Deployment
+
+1. Clone `git clone https://github.com/yalland-ubi/tokenbridge-contracts` repo
+2. Cd into the new folder and install dependencies `cd tokenbridge-contracts && npm install`
+3. Compile contracts `npm run compile`
+4. Cd into deploy folder `cd deploy`
+5. Update `.env.test` file with the following mandatory fields (other fields are optional):
+  - DEPLOYMENT_ACCOUNT_PRIVATE_KEY
+  - HOME_ERC20_TOKEN_ADDRESS
+  - FOREIGN_ERC20_TOKEN_ADDRESS
+6. Run `npm install` (here is another package.json file)
+7. Run `npm run deploy`
+8. Copy home and foreign mediator address to a home network spec.
+8. Copy home and foreign mediator address to a foreign network spec.
+
 ## Bridge Overview
 
 The POA Bridge allows users to transfer assets between two chains in the Ethereum ecosystem. It is composed of several elements which are located in different POA Network repositories:
